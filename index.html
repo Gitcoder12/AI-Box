@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Box — Multi-Model Workspace</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f5f0;
+  --surface: #ffffff;
+  --surface2: #f0f0eb;
+  --surface3: #e8e8e3;
+  --border: #e0e0d8;
+  --border2: #c8c8c0;
+  --text: #1a1a18;
+  --muted: #888880;
+  --muted2: #aaaaa0;
+  --claude: #e8622a;
+  --claude-dim: #fff3ee;
+  --claude-border: #fad0be;
+  --gemini: #7c4dff;
+  --gemini-dim: #f3f0ff;
+  --gemini-border: #d4c8ff;
+  --deepseek: #1a73e8;
+  --deepseek-dim: #eef4ff;
+  --deepseek-border: #bdd4f8;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; min-height:100vh; }
+
+.app { max-width:1200px; margin:0 auto; padding:0 24px 80px; }
+
+/* HEADER */
+header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:28px 0 24px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:28px;
+}
+.logo { display:flex; align-items:center; gap:10px; }
+.logo-mark {
+  width:32px; height:32px; background:var(--text); border-radius:6px;
+  display:grid; grid-template-columns:1fr 1fr; gap:3px; padding:6px;
+}
+.logo-mark span { background:var(--bg); border-radius:1px; }
+.logo-text { font-family:'JetBrains Mono',monospace; font-weight:700; font-size:1.1rem; }
+.header-actions { display:flex; align-items:center; gap:8px; }
+
+.btn-ghost {
+  background:var(--surface); border:1px solid var(--border2); color:var(--muted);
+  padding:7px 14px; border-radius:7px; cursor:pointer;
+  font-family:'Inter',sans-serif; font-size:0.82rem; font-weight:500;
+  transition:all 0.15s; display:flex; align-items:center; gap:6px;
+}
+.btn-ghost:hover { color:var(--text); background:var(--surface2); }
+.btn-ghost.active-btn { background:var(--text); color:var(--bg); border-color:var(--text); }
+
+/* MODE SWITCHER */
+.mode-switcher {
+  display:flex; background:var(--surface); border:1px solid var(--border);
+  border-radius:10px; padding:4px; margin-bottom:20px; gap:4px;
+}
+.mode-btn {
+  flex:1; padding:9px 16px; border-radius:7px; border:none; cursor:pointer;
+  font-family:'Inter',sans-serif; font-size:0.85rem; font-weight:500;
+  background:transparent; color:var(--muted); transition:all 0.15s;
+  display:flex; align-items:center; justify-content:center; gap:7px;
+}
+.mode-btn.active { background:var(--text); color:var(--bg); }
+.mode-btn:not(.active):hover { background:var(--surface2); color:var(--text); }
+
+/* PANELS */
+.panel {
+  background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  padding:20px; margin-bottom:16px; display:none;
+  animation:fadeIn 0.2s ease;
+}
+.panel.open { display:block; }
+@keyframes fadeIn {
+  from { opacity:0; transform:translateY(-6px); }
+  to { opacity:1; transform:translateY(0); }
+}
+.panel-title {
+  font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--muted2);
+  text-transform:uppercase; letter-spacing:1.5px; margin-bottom:16px;
+}
+.keys-grid, .memory-grid {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; margin-bottom:12px;
+}
+.key-field, .memory-field { display:flex; flex-direction:column; gap:6px; }
+.key-label, .memory-label {
+  font-size:0.78rem; font-weight:600; color:var(--muted); display:flex; align-items:center; gap:7px;
+}
+.key-dot { width:7px; height:7px; border-radius:50%; }
+.key-input, .memory-textarea {
+  background:var(--surface2); border:1px solid var(--border); border-radius:7px;
+  padding:9px 12px; color:var(--text); font-family:'JetBrains Mono',monospace;
+  font-size:0.78rem; outline:none; transition:border-color 0.15s;
+}
+.key-input:focus, .memory-textarea:focus { border-color:var(--border2); }
+.key-input::placeholder, .memory-textarea::placeholder { color:var(--muted2); }
+.memory-textarea { font-family:'Inter',sans-serif; font-size:0.82rem; resize:vertical; min-height:68px; line-height:1.5; }
+.panel-note { font-size:0.75rem; color:var(--muted2); font-family:'JetBrains Mono',monospace; }
+
+/* MODEL TILES */
+.model-tiles { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px; }
+.model-tile {
+  background:var(--surface); border:1.5px solid var(--border); border-radius:10px;
+  padding:12px 14px; cursor:pointer; transition:all 0.15s;
+  display:flex; align-items:center; gap:10px; user-select:none;
+}
+.model-tile:hover { background:var(--surface2); }
+.model-tile.tile-on-claude   { border-color:var(--claude-border);   background:var(--claude-dim); }
+.model-tile.tile-on-gemini   { border-color:var(--gemini-border);   background:var(--gemini-dim); }
+.model-tile.tile-on-deepseek { border-color:var(--deepseek-border); background:var(--deepseek-dim); }
+.tile-icon {
+  width:30px; height:30px; border-radius:6px; display:flex; align-items:center;
+  justify-content:center; font-family:'JetBrains Mono',monospace; font-weight:700;
+  font-size:0.72rem; flex-shrink:0; background:var(--surface3); color:var(--muted); transition:all 0.15s;
+}
+.tile-on-claude   .tile-icon { background:var(--claude);   color:#fff; }
+.tile-on-gemini   .tile-icon { background:var(--gemini);   color:#fff; }
+.tile-on-deepseek .tile-icon { background:var(--deepseek); color:#fff; }
+.tile-info { flex:1; min-width:0; }
+.tile-name { font-weight:600; font-size:0.85rem; color:var(--muted); transition:color 0.15s; }
+.tile-on-claude   .tile-name { color:var(--claude); }
+.tile-on-gemini   .tile-name { color:var(--gemini); }
+.tile-on-deepseek .tile-name { color:var(--deepseek); }
+.tile-model { font-family:'JetBrains Mono',monospace; font-size:0.65rem; color:var(--muted2); margin-top:1px; }
+.tile-check {
+  width:16px; height:16px; border-radius:50%; border:1.5px solid var(--border2);
+  flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all 0.15s;
+}
+.tile-on-claude   .tile-check { background:var(--claude);   border-color:var(--claude);   color:#fff; }
+.tile-on-gemini   .tile-check { background:var(--gemini);   border-color:var(--gemini);   color:#fff; }
+.tile-on-deepseek .tile-check { background:var(--deepseek); border-color:var(--deepseek); color:#fff; }
+.tile-check::after {
+  content:''; width:5px; height:3px;
+  border-left:1.5px solid currentColor; border-bottom:1.5px solid currentColor;
+  transform:rotate(-45deg) translateY(-1px); display:none;
+}
+.tile-on-claude .tile-check::after,
+.tile-on-gemini .tile-check::after,
+.tile-on-deepseek .tile-check::after { display:block; }
+
+/* PROMPT */
+.prompt-wrap {
+  background:var(--surface); border:1.5px solid var(--border); border-radius:12px;
+  margin-bottom:20px; transition:border-color 0.2s, box-shadow 0.2s;
+}
+.prompt-wrap:focus-within { border-color:var(--border2); box-shadow:0 0 0 3px rgba(0,0,0,0.04); }
+.prompt-textarea {
+  width:100%; background:transparent; border:none; outline:none; color:var(--text);
+  font-family:'Inter',sans-serif; font-size:0.95rem; line-height:1.6;
+  padding:16px 18px 8px; resize:none; min-height:80px;
+}
+.prompt-textarea::placeholder { color:var(--muted2); }
+.prompt-footer {
+  display:flex; align-items:center; justify-content:space-between; padding:8px 14px 12px;
+}
+.prompt-hint { font-size:0.75rem; color:var(--muted2); font-family:'JetBrains Mono',monospace; }
+
+/* DEBATE CONFIG */
+.debate-config {
+  background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  padding:16px 20px; margin-bottom:20px; display:none;
+  flex-direction:column; gap:14px;
+}
+.debate-config.show { display:flex; }
+.debate-config-row { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+.debate-config-label { font-size:0.82rem; font-weight:600; color:var(--muted); min-width:100px; }
+.debate-rounds {
+  display:flex; gap:6px;
+}
+.round-btn {
+  width:34px; height:34px; border-radius:7px; border:1.5px solid var(--border);
+  background:var(--surface2); color:var(--muted); font-weight:700; font-size:0.85rem;
+  cursor:pointer; transition:all 0.15s; font-family:'JetBrains Mono',monospace;
+}
+.round-btn.selected { background:var(--text); color:var(--bg); border-color:var(--text); }
+.round-btn:hover:not(.selected) { border-color:var(--border2); color:var(--text); }
+
+.debate-topic-input {
+  background:var(--surface2); border:1px solid var(--border); border-radius:7px;
+  padding:9px 12px; color:var(--text); font-family:'Inter',sans-serif; font-size:0.85rem;
+  outline:none; transition:border-color 0.15s; flex:1; min-width:200px;
+}
+.debate-topic-input:focus { border-color:var(--border2); }
+.debate-topic-input::placeholder { color:var(--muted2); }
+
+/* BUTTONS */
+.send-btn {
+  background:var(--text); color:var(--bg); border:none; border-radius:8px;
+  padding:9px 22px; font-family:'Inter',sans-serif; font-weight:600; font-size:0.85rem;
+  cursor:pointer; transition:opacity 0.15s, transform 0.15s;
+  display:flex; align-items:center; gap:8px;
+}
+.send-btn:hover { opacity:0.85; transform:translateY(-1px); }
+.send-btn:disabled { opacity:0.35; cursor:not-allowed; transform:none; }
+.btn-spinner {
+  width:13px; height:13px; border:2px solid rgba(255,255,255,0.3);
+  border-top-color:#fff; border-radius:50%; animation:spin 0.7s linear infinite; display:none;
+}
+.send-btn.loading .btn-spinner { display:block; }
+.send-btn.loading .btn-label { display:none; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* SUMMARY */
+.summary {
+  display:none; align-items:center; justify-content:space-between;
+  padding:10px 16px; background:var(--surface); border:1px solid var(--border);
+  border-radius:8px; margin-bottom:16px; flex-wrap:wrap; gap:12px;
+}
+.summary.visible { display:flex; }
+.summary-stats { display:flex; gap:20px; flex-wrap:wrap; }
+.s-stat { display:flex; flex-direction:column; gap:1px; }
+.s-label { font-family:'JetBrains Mono',monospace; font-size:0.65rem; color:var(--muted2); text-transform:uppercase; letter-spacing:1px; }
+.s-value { font-family:'JetBrains Mono',monospace; font-size:0.82rem; font-weight:700; color:var(--text); }
+.clear-btn {
+  background:transparent; border:1px solid var(--border); color:var(--muted);
+  padding:5px 12px; border-radius:6px; cursor:pointer; font-size:0.78rem;
+  font-family:'Inter',sans-serif; transition:all 0.15s;
+}
+.clear-btn:hover { border-color:#f87171; color:#ef4444; }
+
+/* ═══ COMPARE MODE ═══ */
+.responses-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); gap:16px; }
+.response-card {
+  background:var(--surface); border:1.5px solid var(--border); border-radius:12px;
+  overflow:hidden; display:flex; flex-direction:column;
+}
+.response-card.card-claude   { border-top:3px solid var(--claude); }
+.response-card.card-gemini   { border-top:3px solid var(--gemini); }
+.response-card.card-deepseek { border-top:3px solid var(--deepseek); }
+.card-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 16px; border-bottom:1px solid var(--border); background:var(--surface2);
+}
+.card-model { display:flex; align-items:center; gap:10px; }
+.card-avatar {
+  width:26px; height:26px; border-radius:5px; display:flex; align-items:center;
+  justify-content:center; font-family:'JetBrains Mono',monospace; font-weight:700;
+  font-size:0.68rem; color:#fff;
+}
+.avatar-claude { background:var(--claude); }
+.avatar-gemini { background:var(--gemini); }
+.avatar-deepseek { background:var(--deepseek); }
+.card-name { font-weight:600; font-size:0.85rem; }
+.card-version { font-family:'JetBrains Mono',monospace; font-size:0.65rem; color:var(--muted2); margin-top:1px; }
+.card-actions { display:flex; align-items:center; gap:8px; }
+.card-time {
+  font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--muted2);
+  background:var(--surface3); padding:2px 7px; border-radius:4px;
+}
+.copy-btn {
+  background:var(--surface); border:1px solid var(--border); color:var(--muted);
+  padding:4px 10px; border-radius:5px; cursor:pointer; font-size:0.75rem;
+  font-family:'Inter',sans-serif; transition:all 0.15s;
+}
+.copy-btn:hover { color:var(--text); border-color:var(--border2); }
+.copy-btn:disabled { opacity:0.4; cursor:not-allowed; }
+.copy-btn.copied { color:#16a34a; border-color:#86efac; }
+.card-body { padding:18px; flex:1; overflow-y:auto; max-height:480px; }
+
+/* ═══ DEBATE MODE ═══ */
+.debate-arena { display:flex; flex-direction:column; gap:0; }
+
+.debate-topic-display {
+  background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  padding:16px 20px; margin-bottom:20px; text-align:center;
+}
+.debate-topic-label {
+  font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--muted2);
+  text-transform:uppercase; letter-spacing:1.5px; margin-bottom:6px;
+}
+.debate-topic-text { font-size:1rem; font-weight:600; color:var(--text); }
+
+.debate-round-header {
+  display:flex; align-items:center; gap:12px; margin:24px 0 12px;
+}
+.debate-round-line { flex:1; height:1px; background:var(--border); }
+.debate-round-label {
+  font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--muted2);
+  text-transform:uppercase; letter-spacing:1.5px; white-space:nowrap;
+  background:var(--bg); padding:0 8px;
+}
+
+.debate-messages { display:flex; flex-direction:column; gap:12px; }
+
+.debate-msg {
+  display:flex; gap:12px; animation:msgIn 0.3s ease;
+}
+@keyframes msgIn {
+  from { opacity:0; transform:translateY(8px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+.debate-msg-avatar {
+  width:34px; height:34px; border-radius:8px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'JetBrains Mono',monospace; font-weight:700; font-size:0.72rem; color:#fff;
+  margin-top:2px;
+}
+.dmsg-claude   { background:var(--claude); }
+.dmsg-gemini   { background:var(--gemini); }
+.dmsg-deepseek { background:var(--deepseek); }
+
+.debate-msg-content { flex:1; min-width:0; }
+
+.debate-msg-header {
+  display:flex; align-items:baseline; gap:8px; margin-bottom:6px;
+}
+.debate-msg-name { font-weight:700; font-size:0.85rem; }
+.name-claude   { color:var(--claude); }
+.name-gemini   { color:var(--gemini); }
+.name-deepseek { color:var(--deepseek); }
+.debate-msg-meta {
+  font-family:'JetBrains Mono',monospace; font-size:0.65rem; color:var(--muted2);
+}
+
+.debate-msg-bubble {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:0 10px 10px 10px; padding:14px 16px;
+  font-size:0.875rem; line-height:1.7; color:var(--text);
+}
+.bubble-claude   { border-left:3px solid var(--claude); }
+.bubble-gemini   { border-left:3px solid var(--gemini); }
+.bubble-deepseek { border-left:3px solid var(--deepseek); }
+
+.debate-msg-loading .debate-msg-bubble {
+  display:flex; flex-direction:column; gap:8px;
+}
+
+.skeleton {
+  height:12px; border-radius:3px;
+  background:linear-gradient(90deg,var(--surface2) 25%,var(--surface3) 50%,var(--surface2) 75%);
+  background-size:200% 100%; animation:shimmer 1.5s infinite;
+}
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+.sk-full{width:100%} .sk-90{width:90%} .sk-75{width:75%} .sk-60{width:60%} .sk-45{width:45%}
+
+.debate-verdict {
+  background:var(--surface); border:1.5px solid var(--border); border-radius:12px;
+  padding:20px; margin-top:24px;
+}
+.verdict-title {
+  font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--muted2);
+  text-transform:uppercase; letter-spacing:1.5px; margin-bottom:12px;
+  display:flex; align-items:center; gap:8px;
+}
+.verdict-scores { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+.verdict-score {
+  flex:1; min-width:140px; padding:12px 14px; border-radius:8px; border:1px solid var(--border);
+  background:var(--surface2);
+}
+.vs-name { font-weight:700; font-size:0.82rem; margin-bottom:4px; }
+.vs-bar-wrap { height:6px; background:var(--surface3); border-radius:3px; overflow:hidden; margin-bottom:4px; }
+.vs-bar { height:100%; border-radius:3px; transition:width 1s ease; }
+.bar-claude   { background:var(--claude); }
+.bar-gemini   { background:var(--gemini); }
+.bar-deepseek { background:var(--deepseek); }
+.vs-score { font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--muted); }
+
+/* EMPTY / IDLE */
+.empty-notice { grid-column:1/-1; text-align:center; padding:80px 20px; color:var(--muted2); }
+.empty-icon { font-size:2.5rem; margin-bottom:14px; opacity:0.25; }
+.empty-title { font-weight:600; font-size:0.95rem; color:var(--muted); margin-bottom:6px; }
+.empty-sub { font-size:0.82rem; }
+
+/* RESPONSE MARKDOWN */
+.response-content { font-size:0.875rem; line-height:1.75; color:var(--text); }
+.response-content p { margin-bottom:10px; }
+.response-content p:last-child { margin-bottom:0; }
+.response-content h1,.response-content h2,.response-content h3 { font-weight:700; margin:14px 0 6px; }
+.response-content h1{font-size:1.05rem} .response-content h2{font-size:0.95rem} .response-content h3{font-size:0.88rem}
+.response-content code {
+  font-family:'JetBrains Mono',monospace; font-size:0.78rem;
+  background:var(--surface2); border:1px solid var(--border); padding:1px 5px; border-radius:3px;
+}
+.response-content pre {
+  background:var(--surface2); border:1px solid var(--border); border-radius:7px;
+  padding:12px 14px; overflow-x:auto; margin:10px 0;
+}
+.response-content pre code { background:none; border:none; padding:0; font-size:0.8rem; }
+.response-content ul,.response-content ol { padding-left:18px; margin-bottom:10px; }
+.response-content li { margin-bottom:3px; }
+.response-content strong { font-weight:600; }
+.response-content blockquote { border-left:2px solid var(--border2); padding-left:12px; color:var(--muted); margin:10px 0; }
+.response-content a { color:var(--deepseek); text-decoration:none; }
+.response-content a:hover { text-decoration:underline; }
+.response-content hr { border:none; border-top:1px solid var(--border); margin:12px 0; }
+
+@media(max-width:768px){
+  .model-tiles{grid-template-columns:1fr}
+  .responses-grid{grid-template-columns:1fr}
+  header{flex-wrap:wrap;gap:10px}
+  .debate-config-row{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="logo-mark"><span></span><span></span><span></span><span></span></div>
+      <div class="logo-text">AI Box</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-ghost" id="memoryToggleBtn" onclick="togglePanel('memoryPanel',this)">🧠 Memory</button>
+      <button class="btn-ghost" id="keysToggleBtn" onclick="togglePanel('keysPanel',this)">🔑 API Keys</button>
+    </div>
+  </header>
+
+  <!-- KEYS PANEL -->
+  <div class="panel" id="keysPanel">
+    <div class="panel-title">// API Keys — stored in localStorage only</div>
+    <div class="keys-grid">
+      <div class="key-field">
+        <div class="key-label"><div class="key-dot" style="background:var(--claude)"></div>Anthropic (Claude)</div>
+        <input class="key-input" id="key-claude" type="password" placeholder="sk-ant-api03-..." oninput="saveKeys()"/>
+      </div>
+      <div class="key-field">
+        <div class="key-label"><div class="key-dot" style="background:var(--gemini)"></div>Google (Gemini)</div>
+        <input class="key-input" id="key-gemini" type="password" placeholder="AIzaSy..." oninput="saveKeys()"/>
+      </div>
+      <div class="key-field">
+        <div class="key-label"><div class="key-dot" style="background:var(--deepseek)"></div>DeepSeek</div>
+        <input class="key-input" id="key-deepseek" type="password" placeholder="sk-..." oninput="saveKeys()"/>
+      </div>
+    </div>
+    <div class="panel-note">⚠ Keys never leave your browser. Direct API calls only.</div>
+  </div>
+
+  <!-- MEMORY PANEL -->
+  <div class="panel" id="memoryPanel">
+    <div class="panel-title">// Memory — injected as system prompt per model</div>
+    <div class="memory-grid">
+      <div class="memory-field">
+        <div class="memory-label"><div class="key-dot" style="background:var(--claude)"></div>Claude System Prompt</div>
+        <textarea class="memory-textarea" id="mem-claude" placeholder="e.g. You are a concise expert. Always use bullet points." oninput="saveMemory()"></textarea>
+      </div>
+      <div class="memory-field">
+        <div class="memory-label"><div class="key-dot" style="background:var(--gemini)"></div>Gemini System Prompt</div>
+        <textarea class="memory-textarea" id="mem-gemini" placeholder="e.g. Respond in a formal academic tone." oninput="saveMemory()"></textarea>
+      </div>
+      <div class="memory-field">
+        <div class="memory-label"><div class="key-dot" style="background:var(--deepseek)"></div>DeepSeek System Prompt</div>
+        <textarea class="memory-textarea" id="mem-deepseek" placeholder="e.g. Focus on technical depth and code." oninput="saveMemory()"></textarea>
+      </div>
+    </div>
+    <div class="panel-note">💡 In debate mode, each model automatically gets a debate persona injected.</div>
+  </div>
+
+  <!-- MODE SWITCHER -->
+  <div class="mode-switcher">
+    <button class="mode-btn active" id="btn-compare" onclick="switchMode('compare')">⚡ Compare</button>
+    <button class="mode-btn" id="btn-debate" onclick="switchMode('debate')">🥊 Debate</button>
+  </div>
+
+  <!-- MODEL TILES -->
+  <div class="model-tiles" id="modelTiles">
+    <div class="model-tile tile-on-claude" data-model="claude" onclick="toggleModel(this)">
+      <div class="tile-icon">CL</div>
+      <div class="tile-info"><div class="tile-name">Claude</div><div class="tile-model">claude-3-5-sonnet</div></div>
+      <div class="tile-check"></div>
+    </div>
+    <div class="model-tile tile-on-gemini" data-model="gemini" onclick="toggleModel(this)">
+      <div class="tile-icon">GM</div>
+      <div class="tile-info"><div class="tile-name">Gemini</div><div class="tile-model">gemini-1.5-flash</div></div>
+      <div class="tile-check"></div>
+    </div>
+    <div class="model-tile tile-on-deepseek" data-model="deepseek" onclick="toggleModel(this)">
+      <div class="tile-icon">DS</div>
+      <div class="tile-info"><div class="tile-name">DeepSeek</div><div class="tile-model">deepseek-chat</div></div>
+      <div class="tile-check"></div>
+    </div>
+  </div>
+
+  <!-- DEBATE CONFIG (shown only in debate mode) -->
+  <div class="debate-config" id="debateConfig">
+    <div class="debate-config-row">
+      <div class="debate-config-label">Debate Topic</div>
+      <input class="debate-topic-input" id="debateTopicInput" placeholder="e.g. AI will replace programmers within 10 years" />
+    </div>
+    <div class="debate-config-row">
+      <div class="debate-config-label">Rounds</div>
+      <div class="debate-rounds">
+        <button class="round-btn selected" data-rounds="2" onclick="selectRounds(this)">2</button>
+        <button class="round-btn" data-rounds="3" onclick="selectRounds(this)">3</button>
+        <button class="round-btn" data-rounds="4" onclick="selectRounds(this)">4</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROMPT -->
+  <div class="prompt-wrap">
+    <textarea class="prompt-textarea" id="promptInput"
+      placeholder="Ask anything — all enabled models respond simultaneously..."
+      rows="3" onkeydown="handleKeydown(event)" oninput="updateHint()"></textarea>
+    <div class="prompt-footer">
+      <div class="prompt-hint" id="promptHint">⌘+Enter to send</div>
+      <button class="send-btn" id="sendBtn" onclick="handleSend()">
+        <span class="btn-label" id="sendLabel">Send to All</span>
+        <div class="btn-spinner"></div>
+      </button>
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="summary" id="summaryBar">
+    <div class="summary-stats">
+      <div class="s-stat"><div class="s-label">Models</div><div class="s-value" id="stat-models">—</div></div>
+      <div class="s-stat"><div class="s-label">Fastest</div><div class="s-value" id="stat-fastest">—</div></div>
+      <div class="s-stat"><div class="s-label">Mode</div><div class="s-value" id="stat-mode">—</div></div>
+    </div>
+    <button class="clear-btn" onclick="clearAll()">✕ Clear</button>
+  </div>
+
+  <!-- OUTPUT AREA -->
+  <div id="outputArea">
+    <div class="responses-grid" id="responsesGrid">
+      <div class="empty-notice" id="emptyNotice">
+        <div class="empty-icon">⬡</div>
+        <div class="empty-title">AI Box is ready</div>
+        <div class="empty-sub">Add API keys → enable models → send a prompt</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+// ─── STATE ────────────────────────────────────────────────
+const state = {
+  mode: 'compare',
+  activeModels: new Set(['claude','gemini','deepseek']),
+  keys:   {claude:'',gemini:'',deepseek:''},
+  memory: {claude:'',gemini:'',deepseek:''},
+  debateRounds: 2,
+  timings: {},
+  running: false
+};
+
+const META = {
+  claude:   {name:'Claude',   version:'claude-3-5-sonnet-20241022', short:'CL', cls:'claude'},
+  gemini:   {name:'Gemini',   version:'gemini-1.5-flash',           short:'GM', cls:'gemini'},
+  deepseek: {name:'DeepSeek', version:'deepseek-chat',              short:'DS', cls:'deepseek'}
+};
+
+// Debate personas injected automatically
+const DEBATE_PERSONAS = {
+  claude:   'You are a sharp, logical debater. Argue your position with structured reasoning, cite logical principles, and respectfully challenge opposing views. Be concise — max 3 paragraphs.',
+  gemini:   'You are a creative, big-picture debater. Argue your position with analogies, real-world examples, and lateral thinking. Challenge narrow views. Be concise — max 3 paragraphs.',
+  deepseek: 'You are a technical, data-driven debater. Argue your position with facts, statistics, and technical reasoning. Point out flawed assumptions. Be concise — max 3 paragraphs.'
+};
+
+// ─── INIT ─────────────────────────────────────────────────
+(function init(){
+  try {
+    const k = localStorage.getItem('aibox_keys');
+    if(k){ state.keys={...state.keys,...JSON.parse(k)};
+      ['claude','gemini','deepseek'].forEach(m=>{
+        if(state.keys[m]) document.getElementById(`key-${m}`).value=state.keys[m];
+      });
+    }
+    const mem = localStorage.getItem('aibox_memory');
+    if(mem){ state.memory={...state.memory,...JSON.parse(mem)};
+      ['claude','gemini','deepseek'].forEach(m=>{
+        if(state.memory[m]) document.getElementById(`mem-${m}`).value=state.memory[m];
+      });
+    }
+  } catch{}
+})();
+
+// ─── PERSISTENCE ──────────────────────────────────────────
+function saveKeys(){
+  ['claude','gemini','deepseek'].forEach(m=>state.keys[m]=document.getElementById(`key-${m}`).value.trim());
+  localStorage.setItem('aibox_keys',JSON.stringify(state.keys));
+}
+function saveMemory(){
+  ['claude','gemini','deepseek'].forEach(m=>state.memory[m]=document.getElementById(`mem-${m}`).value);
+  localStorage.setItem('aibox_memory',JSON.stringify(state.memory));
+}
+
+// ─── UI ───────────────────────────────────────────────────
+function togglePanel(id,btn){
+  document.getElementById(id).classList.toggle('open');
+  btn.classList.toggle('active-btn',document.getElementById(id).classList.contains('open'));
+}
+
+function toggleModel(tile){
+  const model=tile.dataset.model, cls=`tile-on-${model}`;
+  if(tile.classList.contains(cls)){
+    if(state.activeModels.size===1) return;
+    tile.classList.remove(cls); state.activeModels.delete(model);
+  } else {
+    tile.classList.add(cls); state.activeModels.add(model);
+  }
+}
+
+function switchMode(mode){
+  state.mode=mode;
+  document.getElementById('btn-compare').classList.toggle('active',mode==='compare');
+  document.getElementById('btn-debate').classList.toggle('active',mode==='debate');
+  document.getElementById('debateConfig').classList.toggle('show',mode==='debate');
+  const ph = mode==='debate'
+    ? 'Optional opening position or leave blank for free debate...'
+    : 'Ask anything — all enabled models respond simultaneously...';
+  document.getElementById('promptInput').placeholder=ph;
+  document.getElementById('sendLabel').textContent=mode==='debate'?'Start Debate':'Send to All';
+  clearAll();
+}
+
+function selectRounds(btn){
+  document.querySelectorAll('.round-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  state.debateRounds=parseInt(btn.dataset.rounds);
+}
+
+function updateHint(){
+  const len=document.getElementById('promptInput').value.length;
+  document.getElementById('promptHint').textContent=len>0?`${len} chars · ⌘+Enter to send`:'⌘+Enter to send';
+}
+
+function handleKeydown(e){
+  if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();handleSend();}
+}
+
+function handleSend(){
+  state.mode==='debate'?startDebate():sendCompare();
+}
+
+// ─── COMPARE MODE ─────────────────────────────────────────
+async function sendCompare(){
+  const prompt=document.getElementById('promptInput').value.trim();
+  if(!prompt||state.running) return;
+  const eligible=[...state.activeModels].filter(m=>state.keys[m]);
+  if(!eligible.length){openKeysPanel();return;}
+
+  state.running=true; state.timings={};
+  setLoading(true);
+
+  // Build compare cards
+  const grid=document.getElementById('responsesGrid');
+  grid.className='responses-grid';
+  grid.innerHTML='';
+  eligible.forEach(model=>{
+    const m=META[model];
+    const card=document.createElement('div');
+    card.className=`response-card card-${m.cls}`; card.id=`card-${model}`;
+    card.innerHTML=`
+      <div class="card-header">
+        <div class="card-model">
+          <div class="card-avatar avatar-${m.cls}">${m.short}</div>
+          <div><div class="card-name">${m.name}</div><div class="card-version">${m.version}</div></div>
+        </div>
+        <div class="card-actions">
+          <div class="card-time" id="time-${model}">—</div>
+          <button class="copy-btn" id="copy-${model}" onclick="copyText('${model}')" disabled>Copy</button>
+        </div>
+      </div>
+      <div class="card-body" id="body-${model}">
+        <div class="loading-state">
+          <div class="skeleton sk-full"></div><div class="skeleton sk-90"></div>
+          <div class="skeleton sk-75"></div><div class="skeleton sk-full"></div>
+          <div class="skeleton sk-60"></div>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  document.getElementById('outputArea').innerHTML='';
+  document.getElementById('outputArea').appendChild(grid);
+
+  showSummary(eligible.length,'Compare',prompt);
+  await Promise.allSettled(eligible.map(m=>callModelCompare(m,prompt)));
+  setLoading(false); state.running=false;
+}
+
+async function callModelCompare(model,prompt){
+  const start=Date.now();
+  try {
+    const text=await callModel(model,prompt,state.memory[model]);
+    const ms=Date.now()-start;
+    document.getElementById(`body-${model}`).innerHTML=`<div class="response-content">${md(text)}</div>`;
+    document.getElementById(`time-${model}`).textContent=`${(ms/1000).toFixed(2)}s`;
+    const btn=document.getElementById(`copy-${model}`);
+    btn.disabled=false; btn.dataset.text=text;
+    state.timings[model]=ms; updateFastest();
+  } catch(err){
+    document.getElementById(`body-${model}`).innerHTML=`
+      <div style="padding:14px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;font-size:0.82rem;color:#dc2626">
+        <strong>Error:</strong> ${esc(err.message)}
+      </div>`;
+  }
+}
+
+// ─── DEBATE MODE ───────────────────────────────────────────
+async function startDebate(){
+  const topic=document.getElementById('debateTopicInput').value.trim() ||
+               document.getElementById('promptInput').value.trim();
+  if(!topic){alert('Enter a debate topic first.');return;}
+  if(state.running) return;
+
+  const eligible=[...state.activeModels].filter(m=>state.keys[m]);
+  if(eligible.length<2){alert('Enable at least 2 models with API keys for debate mode.');return;}
+
+  state.running=true;
+  setLoading(true);
+  showSummary(eligible.length,'Debate',topic);
+
+  // Build debate arena
+  const arena=document.createElement('div');
+  arena.className='debate-arena'; arena.id='debateArena';
+
+  // Topic display
+  const topicDiv=document.createElement('div');
+  topicDiv.className='debate-topic-display';
+  topicDiv.innerHTML=`<div class="debate-topic-label">Debate Topic</div><div class="debate-topic-text">${esc(topic)}</div>`;
+  arena.appendChild(topicDiv);
+
+  const msgsContainer=document.createElement('div');
+  msgsContainer.id='debateMessages';
+  arena.appendChild(msgsContainer);
+
+  document.getElementById('outputArea').innerHTML='';
+  document.getElementById('outputArea').appendChild(arena);
+
+  // Round-robin debate
+  // Round 1: Each model gives opening statement
+  // Subsequent rounds: Each model responds to the previous round's messages
+  const debateHistory = {}; // model -> array of their messages
+  eligible.forEach(m=>debateHistory[m]=[]);
+  const allRoundMessages = []; // flat list for context
+
+  for(let round=1; round<=state.debateRounds; round++){
+    // Round header
+    const roundHeader=document.createElement('div');
+    roundHeader.className='debate-round-header';
+    roundHeader.innerHTML=`
+      <div class="debate-round-line"></div>
+      <div class="debate-round-label">Round ${round} — ${round===1?'Opening Statements':'Rebuttals'}</div>
+      <div class="debate-round-line"></div>`;
+    msgsContainer.appendChild(roundHeader);
+
+    const roundMsgsDiv=document.createElement('div');
+    roundMsgsDiv.className='debate-messages';
+    msgsContainer.appendChild(roundMsgsDiv);
+
+    // All models speak in this round
+    for(const model of eligible){
+      // Show loading bubble
+      const loadingMsg=createDebateMsg(model, null, round);
+      roundMsgsDiv.appendChild(loadingMsg);
+      loadingMsg.scrollIntoView({behavior:'smooth',block:'end'});
+
+      // Build context of what others have said so far this debate
+      const othersContext = allRoundMessages
+        .map(m=>m)
+        .join('\n\n');
+
+      const systemPrompt = DEBATE_PERSONAS[model] + (state.memory[model]?'\n'+state.memory[model]:'');
+
+      let userPrompt;
+      if(round===1){
+        userPrompt=`The debate topic is: "${topic}"\n\nGive your opening statement. Take a clear position and defend it.`;
+      } else {
+        userPrompt=`The debate topic is: "${topic}"\n\nHere is what has been said so far:\n\n${othersContext}\n\nNow give your Round ${round} rebuttal. Directly address the strongest opposing arguments and reinforce your position.`;
+      }
+
+      try {
+        const start=Date.now();
+        const text=await callModel(model,userPrompt,systemPrompt);
+        const ms=Date.now()-start;
+
+        // Replace loading with real message
+        const realMsg=createDebateMsg(model,text,round,ms);
+        roundMsgsDiv.replaceChild(realMsg,loadingMsg);
+        realMsg.scrollIntoView({behavior:'smooth',block:'end'});
+
+        allRoundMessages.push(`[${META[model].name}]: ${text}`);
+        debateHistory[model].push(text);
+        state.timings[model]=(state.timings[model]||0)+ms;
+      } catch(err){
+        const errMsg=createDebateMsgError(model,err.message);
+        roundMsgsDiv.replaceChild(errMsg,loadingMsg);
+      }
+    }
+  }
+
+  // Verdict
+  appendVerdict(msgsContainer, eligible, debateHistory, topic);
+
+  setLoading(false);
+  state.running=false;
+}
+
+function createDebateMsg(model, text, round, ms){
+  const m=META[model];
+  const div=document.createElement('div');
+  div.className=`debate-msg${text===null?' debate-msg-loading':''}`;
+  const timeStr=ms?`${(ms/1000).toFixed(2)}s`:'';
+  const roundStr=round===1?'Opening':'Rebuttal';
+  div.innerHTML=`
+    <div class="debate-msg-avatar dmsg-${m.cls}">${m.short}</div>
+    <div class="debate-msg-content">
+      <div class="debate-msg-header">
+        <div class="debate-msg-name name-${m.cls}">${m.name}</div>
+        <div class="debate-msg-meta">${roundStr}${timeStr?' · '+timeStr:''}</div>
+      </div>
+      <div class="debate-msg-bubble bubble-${m.cls}">
+        ${text===null
+          ? '<div class="skeleton sk-full"></div><div class="skeleton sk-90"></div><div class="skeleton sk-75"></div>'
+          : `<div class="response-content">${md(text)}</div>`
+        }
+      </div>
+    </div>`;
+  return div;
+}
+
+function createDebateMsgError(model, errMsg){
+  const m=META[model];
+  const div=document.createElement('div');
+  div.className='debate-msg';
+  div.innerHTML=`
+    <div class="debate-msg-avatar dmsg-${m.cls}">${m.short}</div>
+    <div class="debate-msg-content">
+      <div class="debate-msg-header">
+        <div class="debate-msg-name name-${m.cls}">${m.name}</div>
+        <div class="debate-msg-meta">Error</div>
+      </div>
+      <div class="debate-msg-bubble bubble-${m.cls}" style="color:#dc2626;background:#fef2f2;border-color:#fecaca">
+        ${esc(errMsg)}
+      </div>
+    </div>`;
+  return div;
+}
+
+function appendVerdict(container, eligible, history, topic){
+  // Simple scoring: longer + more rounds participated = higher score (visual only)
+  const scores={};
+  eligible.forEach(m=>{
+    const totalLen=history[m].reduce((a,t)=>a+t.length,0);
+    scores[m]=Math.min(95,Math.round(50+(totalLen/100)));
+  });
+  const maxScore=Math.max(...Object.values(scores));
+  const winner=Object.keys(scores).find(m=>scores[m]===maxScore);
+
+  const verdictDiv=document.createElement('div');
+  verdictDiv.className='debate-verdict';
+  const scoresHTML=eligible.map(m=>`
+    <div class="verdict-score">
+      <div class="vs-name" style="color:var(--${m})">${META[m].name}</div>
+      <div class="vs-bar-wrap"><div class="vs-bar bar-${m}" style="width:0%" data-width="${scores[m]}%"></div></div>
+      <div class="vs-score">${scores[m]}/100 · ${history[m].length} round${history[m].length!==1?'s':''}</div>
+    </div>`).join('');
+
+  verdictDiv.innerHTML=`
+    <div class="verdict-title">🏆 Debate Summary</div>
+    <div class="verdict-scores">${scoresHTML}</div>
+    <div style="font-size:0.82rem;color:var(--muted)">
+      Most comprehensive: <strong style="color:var(--${winner})">${META[winner].name}</strong> 
+      · Topic: "${esc(topic)}"
+    </div>`;
+  container.appendChild(verdictDiv);
+
+  // Animate bars
+  setTimeout(()=>{
+    verdictDiv.querySelectorAll('.vs-bar').forEach(bar=>{
+      bar.style.width=bar.dataset.width;
+    });
+  },100);
+}
+
+// ─── API CALLERS ──────────────────────────────────────────
+async function callModel(model,prompt,systemPrompt){
+  if(model==='claude')   return callClaude(prompt,systemPrompt);
+  if(model==='gemini')   return callGemini(prompt,systemPrompt);
+  if(model==='deepseek') return callDeepSeek(prompt,systemPrompt);
+}
+
+async function callClaude(prompt,systemPrompt){
+  const body={model:'claude-3-5-sonnet-20241022',max_tokens:1024,messages:[{role:'user',content:prompt}]};
+  if(systemPrompt?.trim()) body.system=systemPrompt.trim();
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':state.keys.claude,
+      'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify(body)
+  });
+  if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e?.error?.message||`HTTP ${res.status}`);}
+  const d=await res.json();
+  return d.content?.[0]?.text||'No content.';
+}
+
+async function callGemini(prompt,systemPrompt){
+  const bodyObj={
+    contents:[{role:'user',parts:[{text:prompt}]}],
+    generationConfig:{maxOutputTokens:1024}
+  };
+  if(systemPrompt?.trim()) bodyObj.systemInstruction={parts:[{text:systemPrompt.trim()}]};
+  const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${state.keys.gemini}`,
+    {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(bodyObj)});
+  if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e?.error?.message||`HTTP ${res.status}`);}
+  const d=await res.json();
+  return d.candidates?.[0]?.content?.parts?.[0]?.text||'No content.';
+}
+
+async function callDeepSeek(prompt,systemPrompt){
+  const messages=[];
+  if(systemPrompt?.trim()) messages.push({role:'system',content:systemPrompt.trim()});
+  messages.push({role:'user',content:prompt});
+  const res=await fetch('https://api.deepseek.com/chat/completions',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':`Bearer ${state.keys.deepseek}`},
+    body:JSON.stringify({model:'deepseek-chat',max_tokens:1024,messages})
+  });
+  if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e?.error?.message||`HTTP ${res.status}`);}
+  const d=await res.json();
+  return d.choices?.[0]?.message?.content||'No content.';
+}
+
+// ─── UTILS ────────────────────────────────────────────────
+function setLoading(on){
+  const btn=document.getElementById('sendBtn');
+  btn.disabled=on; btn.classList.toggle('loading',on);
+}
+
+function showSummary(modelCount,mode,prompt){
+  document.getElementById('summaryBar').classList.add('visible');
+  document.getElementById('stat-models').textContent=`${modelCount} active`;
+  document.getElementById('stat-mode').textContent=mode;
+  document.getElementById('stat-fastest').textContent='...';
+}
+
+function updateFastest(){
+  const entries=Object.entries(state.timings);
+  if(!entries.length) return;
+  const [model,ms]=entries.reduce((a,b)=>a[1]<b[1]?a:b);
+  document.getElementById('stat-fastest').textContent=`${META[model].name} (${(ms/1000).toFixed(2)}s)`;
+}
+
+function copyText(model){
+  const btn=document.getElementById(`copy-${model}`);
+  navigator.clipboard.writeText(btn.dataset.text||'').then(()=>{
+    btn.textContent='Copied!'; btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied');},2000);
+  });
+}
+
+function clearAll(){
+  document.getElementById('outputArea').innerHTML=`
+    <div class="responses-grid" id="responsesGrid">
+      <div class="empty-notice" id="emptyNotice">
+        <div class="empty-icon">⬡</div>
+        <div class="empty-title">AI Box is ready</div>
+        <div class="empty-sub">Add API keys → enable models → send a prompt</div>
+      </div>
+    </div>`;
+  document.getElementById('summaryBar').classList.remove('visible');
+  document.getElementById('promptInput').value='';
+  updateHint();
+}
+
+function openKeysPanel(){
+  document.getElementById('keysPanel').classList.add('open');
+  document.getElementById('keysToggleBtn').classList.add('active-btn');
+  alert('Add at least one API key to get started.');
+}
+
+function esc(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function md(text){
+  let h=esc(text);
+  h=h.replace(/```[\w]*\n?([\s\S]*?)```/g,(_,c)=>`<pre><code>${c.trim()}</code></pre>`);
+  h=h.replace(/`([^`\n]+)`/g,'<code>$1</code>');
+  h=h.replace(/^### (.+)$/gm,'<h3>$1</h3>');
+  h=h.replace(/^## (.+)$/gm,'<h2>$1</h2>');
+  h=h.replace(/^# (.+)$/gm,'<h1>$1</h1>');
+  h=h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  h=h.replace(/\*(.+?)\*/g,'<em>$1</em>');
+  h=h.replace(/^&gt; (.+)$/gm,'<blockquote>$1</blockquote>');
+  h=h.replace(/^---$/gm,'<hr>');
+  h=h.replace(/^\* (.+)$/gm,'<li>$1</li>');
+  h=h.replace(/^- (.+)$/gm,'<li>$1</li>');
+  h=h.replace(/(<li>[\s\S]*?<\/li>)/g,'<ul>$1</ul>');
+  h=h.replace(/<\/ul>\s*<ul>/g,'');
+  h=h.replace(/\[(.+?)\]\((.+?)\)/g,'<a href="$2" target="_blank">$1</a>');
+  h=h.split(/\n{2,}/).map(b=>{
+    b=b.trim(); if(!b) return '';
+    if(/^<(h[1-3]|ul|ol|pre|blockquote|hr)/.test(b)) return b;
+    return `<p>${b.replace(/\n/g,'<br>')}</p>`;
+  }).join('');
+  return h;
+}
+</script>
+</body>
+</html>
