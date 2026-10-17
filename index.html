@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Box — Multi-Model Workspace</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #f5f5f0;
@@ -46,7 +46,7 @@ header {
   display:grid; grid-template-columns:1fr 1fr; gap:3px; padding:6px;
 }
 .logo-mark span { background:var(--bg); border-radius:1px; }
-.logo-text { font-family:'JetBrains Mono',monospace; font-weight:700; font-size:1.1rem; }
+.logo-text { font-family:'Anton',sans-serif; font-weight:normal; font-size:1.6rem; letter-spacing:0.05em; text-transform:uppercase; margin-top:-4px; }
 .header-actions { display:flex; align-items:center; gap:8px; }
 
 .btn-ghost {
@@ -110,20 +110,19 @@ header {
 .model-tile {
   background:var(--surface); border:1.5px solid var(--border); border-radius:10px;
   padding:12px 14px; cursor:pointer; transition:all 0.15s;
-  display:flex; align-items:center; gap:10px; user-select:none;
+  display:flex; align-items:center; gap:12px; user-select:none;
 }
 .model-tile:hover { background:var(--surface2); }
 .model-tile.tile-on-claude   { border-color:var(--claude-border);   background:var(--claude-dim); }
 .model-tile.tile-on-gemini   { border-color:var(--gemini-border);   background:var(--gemini-dim); }
 .model-tile.tile-on-deepseek { border-color:var(--deepseek-border); background:var(--deepseek-dim); }
 .tile-icon {
-  width:30px; height:30px; border-radius:6px; display:flex; align-items:center;
-  justify-content:center; font-family:'JetBrains Mono',monospace; font-weight:700;
-  font-size:0.72rem; flex-shrink:0; background:var(--surface3); color:var(--muted); transition:all 0.15s;
+  width:32px; height:32px; border-radius:8px; display:flex; align-items:center;
+  justify-content:center; flex-shrink:0; background:var(--surface3); color:var(--muted); transition:all 0.15s;
 }
-.tile-on-claude   .tile-icon { background:var(--claude);   color:#fff; }
-.tile-on-gemini   .tile-icon { background:var(--gemini);   color:#fff; }
-.tile-on-deepseek .tile-icon { background:var(--deepseek); color:#fff; }
+.model-tile.tile-on-claude .tile-icon { background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.1); }
+.model-tile.tile-on-gemini .tile-icon { background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.1); }
+.model-tile.tile-on-deepseek .tile-icon { background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.1); }
 .tile-info { flex:1; min-width:0; }
 .tile-name { font-weight:600; font-size:0.85rem; color:var(--muted); transition:color 0.15s; }
 .tile-on-claude   .tile-name { color:var(--claude); }
@@ -172,9 +171,7 @@ header {
 .debate-config.show { display:flex; }
 .debate-config-row { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
 .debate-config-label { font-size:0.82rem; font-weight:600; color:var(--muted); min-width:100px; }
-.debate-rounds {
-  display:flex; gap:6px;
-}
+.debate-rounds { display:flex; gap:6px; }
 .round-btn {
   width:34px; height:34px; border-radius:7px; border:1.5px solid var(--border);
   background:var(--surface2); color:var(--muted); font-weight:700; font-size:0.85rem;
@@ -242,12 +239,8 @@ header {
 .card-model { display:flex; align-items:center; gap:10px; }
 .card-avatar {
   width:26px; height:26px; border-radius:5px; display:flex; align-items:center;
-  justify-content:center; font-family:'JetBrains Mono',monospace; font-weight:700;
-  font-size:0.68rem; color:#fff;
+  justify-content:center; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.1);
 }
-.avatar-claude { background:var(--claude); }
-.avatar-gemini { background:var(--gemini); }
-.avatar-deepseek { background:var(--deepseek); }
 .card-name { font-weight:600; font-size:0.85rem; }
 .card-version { font-family:'JetBrains Mono',monospace; font-size:0.65rem; color:var(--muted2); margin-top:1px; }
 .card-actions { display:flex; align-items:center; gap:8px; }
@@ -278,9 +271,7 @@ header {
 }
 .debate-topic-text { font-size:1rem; font-weight:600; color:var(--text); }
 
-.debate-round-header {
-  display:flex; align-items:center; gap:12px; margin:24px 0 12px;
-}
+.debate-round-header { display:flex; align-items:center; gap:12px; margin:24px 0 12px; }
 .debate-round-line { flex:1; height:1px; background:var(--border); }
 .debate-round-label {
   font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--muted2);
@@ -289,37 +280,22 @@ header {
 }
 
 .debate-messages { display:flex; flex-direction:column; gap:12px; }
-
-.debate-msg {
-  display:flex; gap:12px; animation:msgIn 0.3s ease;
-}
-@keyframes msgIn {
-  from { opacity:0; transform:translateY(8px); }
-  to { opacity:1; transform:translateY(0); }
-}
+.debate-msg { display:flex; gap:12px; animation:msgIn 0.3s ease; }
+@keyframes msgIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
 
 .debate-msg-avatar {
   width:34px; height:34px; border-radius:8px; flex-shrink:0;
   display:flex; align-items:center; justify-content:center;
-  font-family:'JetBrains Mono',monospace; font-weight:700; font-size:0.72rem; color:#fff;
-  margin-top:2px;
+  background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.1); margin-top:2px;
 }
-.dmsg-claude   { background:var(--claude); }
-.dmsg-gemini   { background:var(--gemini); }
-.dmsg-deepseek { background:var(--deepseek); }
 
 .debate-msg-content { flex:1; min-width:0; }
-
-.debate-msg-header {
-  display:flex; align-items:baseline; gap:8px; margin-bottom:6px;
-}
+.debate-msg-header { display:flex; align-items:baseline; gap:8px; margin-bottom:6px; }
 .debate-msg-name { font-weight:700; font-size:0.85rem; }
 .name-claude   { color:var(--claude); }
 .name-gemini   { color:var(--gemini); }
 .name-deepseek { color:var(--deepseek); }
-.debate-msg-meta {
-  font-family:'JetBrains Mono',monospace; font-size:0.65rem; color:var(--muted2);
-}
+.debate-msg-meta { font-family:'JetBrains Mono',monospace; font-size:0.65rem; color:var(--muted2); }
 
 .debate-msg-bubble {
   background:var(--surface); border:1px solid var(--border);
@@ -329,10 +305,7 @@ header {
 .bubble-claude   { border-left:3px solid var(--claude); }
 .bubble-gemini   { border-left:3px solid var(--gemini); }
 .bubble-deepseek { border-left:3px solid var(--deepseek); }
-
-.debate-msg-loading .debate-msg-bubble {
-  display:flex; flex-direction:column; gap:8px;
-}
+.debate-msg-loading .debate-msg-bubble { display:flex; flex-direction:column; gap:8px; }
 
 .skeleton {
   height:12px; border-radius:3px;
@@ -352,10 +325,7 @@ header {
   display:flex; align-items:center; gap:8px;
 }
 .verdict-scores { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
-.verdict-score {
-  flex:1; min-width:140px; padding:12px 14px; border-radius:8px; border:1px solid var(--border);
-  background:var(--surface2);
-}
+.verdict-score { flex:1; min-width:140px; padding:12px 14px; border-radius:8px; border:1px solid var(--border); background:var(--surface2); }
 .vs-name { font-weight:700; font-size:0.82rem; margin-bottom:4px; }
 .vs-bar-wrap { height:6px; background:var(--surface3); border-radius:3px; overflow:hidden; margin-bottom:4px; }
 .vs-bar { height:100%; border-radius:3px; transition:width 1s ease; }
@@ -376,14 +346,8 @@ header {
 .response-content p:last-child { margin-bottom:0; }
 .response-content h1,.response-content h2,.response-content h3 { font-weight:700; margin:14px 0 6px; }
 .response-content h1{font-size:1.05rem} .response-content h2{font-size:0.95rem} .response-content h3{font-size:0.88rem}
-.response-content code {
-  font-family:'JetBrains Mono',monospace; font-size:0.78rem;
-  background:var(--surface2); border:1px solid var(--border); padding:1px 5px; border-radius:3px;
-}
-.response-content pre {
-  background:var(--surface2); border:1px solid var(--border); border-radius:7px;
-  padding:12px 14px; overflow-x:auto; margin:10px 0;
-}
+.response-content code { font-family:'JetBrains Mono',monospace; font-size:0.78rem; background:var(--surface2); border:1px solid var(--border); padding:1px 5px; border-radius:3px; }
+.response-content pre { background:var(--surface2); border:1px solid var(--border); border-radius:7px; padding:12px 14px; overflow-x:auto; margin:10px 0; }
 .response-content pre code { background:none; border:none; padding:0; font-size:0.8rem; }
 .response-content ul,.response-content ol { padding-left:18px; margin-bottom:10px; }
 .response-content li { margin-bottom:3px; }
@@ -408,7 +372,7 @@ header {
   <header>
     <div class="logo">
       <div class="logo-mark"><span></span><span></span><span></span><span></span></div>
-      <div class="logo-text">AI Box</div>
+      <div class="logo-text">AI BOX</div>
     </div>
     <div class="header-actions">
       <button class="btn-ghost" id="memoryToggleBtn" onclick="togglePanel('memoryPanel',this)">🧠 Memory</button>
@@ -465,17 +429,23 @@ header {
   <!-- MODEL TILES -->
   <div class="model-tiles" id="modelTiles">
     <div class="model-tile tile-on-claude" data-model="claude" onclick="toggleModel(this)">
-      <div class="tile-icon">CL</div>
+      <div class="tile-icon" id="icon-claude">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#1a1a18"><path d="M22.28 12.35c0-1.22-.5-2.37-1.36-3.2.27-1.23-.03-2.52-.83-3.5-.8-.97-2.03-1.47-3.25-1.32C15.9 3.14 14.66 2.5 13.3 2.5c-1.37 0-2.6.64-3.54 1.83-1.22-.15-2.45.35-3.25 1.32-.8.98-1.1 2.27-.83 3.5-.86.83-1.36 1.98-1.36 3.2 0 1.21.5 2.37 1.36 3.2-.27 1.22.03 2.52.83 3.5.8.97 2.03 1.47 3.25 1.32.94 1.19 2.17 1.83 3.54 1.83 1.36 0 2.6-.64 3.54-1.83 1.22.15 2.45-.35 3.25-1.32.8-.98 1.1-2.28.83-3.5.86-.83 1.36-1.99 1.36-3.2zM12.98 20.2c-.94 0-1.8-.38-2.45-1.02l.12-.07 2.65-1.53c.17-.1.28-.28.28-.48v-3.74l1.16.67v3.25c0 1.6-1.3 2.92-2.92 2.92h-1.16zM7.02 17.53c-.5-.86-.6-1.9-.23-2.84l.12.07 2.65 1.53c.17.1.38.1.55 0l3.24-1.87v1.34l-2.8 1.62c-1.4.8-3.18.33-4-1.05l-.58-1zM5.62 11.2c.2-.99.83-1.83 1.71-2.32v3.2c0 .2.1.38.28.48l3.24 1.87-1.16.67-2.8-1.62c-1.4-.8-1.87-2.58-1.07-3.98zM16.97 12.26c.17-.1.38-.1.55 0l3.24 1.87c1.4.8 1.87 2.58 1.07 3.98l-.58 1-.95-.55c-.2-.1-.3-.3-.3-.5v-3.2l-3.24-1.87 1.16-.67v-.06zM20.07 8.53c.5.86.6 1.9.23 2.84l-.12-.07-2.65-1.53c-.17-.1-.38-.1-.55 0l-3.24 1.87v-1.34l2.8-1.62c1.4-.8 3.18-.33 4 1.05l.58 1zM13.93 12.8c.17.1.28.28.28.48v3.74l-1.16-.67-2.8 1.62V14.6c0-.2.1-.38.28-.48l3.24-1.87c.17-.1.38-.1.55 0zM15.08 11.74l-3.24-1.87c-.17-.1-.38-.1-.55 0l-2.65 1.53.12.07v-1.34l2.8-1.62c1.4-.8 3.18-.33 4 1.05l.58 1 .95-.55c.5.86.6 1.9.23 2.84z"/></svg>
+      </div>
       <div class="tile-info"><div class="tile-name">Claude</div><div class="tile-model">claude-3-5-sonnet</div></div>
       <div class="tile-check"></div>
     </div>
     <div class="model-tile tile-on-gemini" data-model="gemini" onclick="toggleModel(this)">
-      <div class="tile-icon">GM</div>
+      <div class="tile-icon" id="icon-gemini">
+        <svg width="20" height="20" viewBox="0 0 24 24"><defs><linearGradient id="geminiGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#4285F4"/><stop offset="33%" stop-color="#EA4335"/><stop offset="66%" stop-color="#FBBC05"/><stop offset="100%" stop-color="#34A853"/></linearGradient></defs><path fill="url(#geminiGrad)" d="M12 2C12 7.5 7.5 12 2 12C7.5 12 12 16.5 12 22C12 16.5 16.5 12 22 12C16.5 12 12 7.5 12 2Z"/></svg>
+      </div>
       <div class="tile-info"><div class="tile-name">Gemini</div><div class="tile-model">gemini-1.5-flash</div></div>
       <div class="tile-check"></div>
     </div>
     <div class="model-tile tile-on-deepseek" data-model="deepseek" onclick="toggleModel(this)">
-      <div class="tile-icon">DS</div>
+      <div class="tile-icon" id="icon-deepseek">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3C7.5 3 4 7 4 12C4 16.5 7.5 20 12 20C16.5 20 20 16.5 20 12C20 7 16.5 3 12 3Z" fill="#1a73e8"/><path d="M4 12C4 12 6 10 8 10C10 10 12 11 12 13C12 11 14 10 16 10C18 10 20 12 20 12C20 12 18 8 12 8C6 8 4 12 4 12Z" fill="#0d47a1"/><circle cx="9" cy="13" r="1.5" fill="white"/><path d="M16 3L18 6L20 3" stroke="#1a73e8" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
       <div class="tile-info"><div class="tile-name">DeepSeek</div><div class="tile-model">deepseek-chat</div></div>
       <div class="tile-check"></div>
     </div>
@@ -543,6 +513,13 @@ const state = {
   debateRounds: 2,
   timings: {},
   running: false
+};
+
+// Official SVGs for avatars
+const SVGS = {
+  claude: '<svg width="16" height="16" viewBox="0 0 24 24" fill="#1a1a18"><path d="M22.28 12.35c0-1.22-.5-2.37-1.36-3.2.27-1.23-.03-2.52-.83-3.5-.8-.97-2.03-1.47-3.25-1.32C15.9 3.14 14.66 2.5 13.3 2.5c-1.37 0-2.6.64-3.54 1.83-1.22-.15-2.45.35-3.25 1.32-.8.98-1.1 2.27-.83 3.5-.86.83-1.36 1.98-1.36 3.2 0 1.21.5 2.37 1.36 3.2-.27 1.22.03 2.52.83 3.5.8.97 2.03 1.47 3.25 1.32.94 1.19 2.17 1.83 3.54 1.83 1.36 0 2.6-.64 3.54-1.83 1.22.15 2.45-.35 3.25-1.32.8-.98 1.1-2.28.83-3.5.86-.83 1.36-1.99 1.36-3.2zM12.98 20.2c-.94 0-1.8-.38-2.45-1.02l.12-.07 2.65-1.53c.17-.1.28-.28.28-.48v-3.74l1.16.67v3.25c0 1.6-1.3 2.92-2.92 2.92h-1.16zM7.02 17.53c-.5-.86-.6-1.9-.23-2.84l.12.07 2.65 1.53c.17.1.38.1.55 0l3.24-1.87v1.34l-2.8 1.62c-1.4.8-3.18.33-4-1.05l-.58-1zM5.62 11.2c.2-.99.83-1.83 1.71-2.32v3.2c0 .2.1.38.28.48l3.24 1.87-1.16.67-2.8-1.62c-1.4-.8-1.87-2.58-1.07-3.98zM16.97 12.26c.17-.1.38-.1.55 0l3.24 1.87c1.4.8 1.87 2.58 1.07 3.98l-.58 1-.95-.55c-.2-.1-.3-.3-.3-.5v-3.2l-3.24-1.87 1.16-.67v-.06zM20.07 8.53c.5.86.6 1.9.23 2.84l-.12-.07-2.65-1.53c-.17-.1-.38-.1-.55 0l-3.24 1.87v-1.34l2.8-1.62c1.4-.8 3.18-.33 4 1.05l.58 1zM13.93 12.8c.17.1.28.28.28.48v3.74l-1.16-.67-2.8 1.62V14.6c0-.2.1-.38.28-.48l3.24-1.87c.17-.1.38-.1.55 0zM15.08 11.74l-3.24-1.87c-.17-.1-.38-.1-.55 0l-2.65 1.53.12.07v-1.34l2.8-1.62c1.4-.8 3.18-.33 4 1.05l.58 1 .95-.55c.5.86.6 1.9.23 2.84z"/></svg>',
+  gemini: '<svg width="18" height="18" viewBox="0 0 24 24"><defs><linearGradient id="geminiGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#4285F4"/><stop offset="33%" stop-color="#EA4335"/><stop offset="66%" stop-color="#FBBC05"/><stop offset="100%" stop-color="#34A853"/></linearGradient></defs><path fill="url(#geminiGrad)" d="M12 2C12 7.5 7.5 12 2 12C7.5 12 12 16.5 12 22C12 16.5 16.5 12 22 12C16.5 12 12 7.5 12 2Z"/></svg>',
+  deepseek: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3C7.5 3 4 7 4 12C4 16.5 7.5 20 12 20C16.5 20 20 16.5 20 12C20 7 16.5 3 12 3Z" fill="#1a73e8"/><path d="M4 12C4 12 6 10 8 10C10 10 12 11 12 13C12 11 14 10 16 10C18 10 20 12 20 12C20 12 18 8 12 8C6 8 4 12 4 12Z" fill="#0d47a1"/><circle cx="9" cy="13" r="1.5" fill="white"/><path d="M16 3L18 6L20 3" stroke="#1a73e8" stroke-width="2" stroke-linecap="round"/></svg>'
 };
 
 const META = {
@@ -644,7 +621,6 @@ async function sendCompare(){
   state.running=true; state.timings={};
   setLoading(true);
 
-  // Build compare cards
   const grid=document.getElementById('responsesGrid');
   grid.className='responses-grid';
   grid.innerHTML='';
@@ -655,7 +631,7 @@ async function sendCompare(){
     card.innerHTML=`
       <div class="card-header">
         <div class="card-model">
-          <div class="card-avatar avatar-${m.cls}">${m.short}</div>
+          <div class="card-avatar avatar-${m.cls}">${SVGS[model]}</div>
           <div><div class="card-name">${m.name}</div><div class="card-version">${m.version}</div></div>
         </div>
         <div class="card-actions">
@@ -713,11 +689,9 @@ async function startDebate(){
   setLoading(true);
   showSummary(eligible.length,'Debate',topic);
 
-  // Build debate arena
   const arena=document.createElement('div');
   arena.className='debate-arena'; arena.id='debateArena';
 
-  // Topic display
   const topicDiv=document.createElement('div');
   topicDiv.className='debate-topic-display';
   topicDiv.innerHTML=`<div class="debate-topic-label">Debate Topic</div><div class="debate-topic-text">${esc(topic)}</div>`;
@@ -730,15 +704,11 @@ async function startDebate(){
   document.getElementById('outputArea').innerHTML='';
   document.getElementById('outputArea').appendChild(arena);
 
-  // Round-robin debate
-  // Round 1: Each model gives opening statement
-  // Subsequent rounds: Each model responds to the previous round's messages
-  const debateHistory = {}; // model -> array of their messages
+  const debateHistory = {}; 
   eligible.forEach(m=>debateHistory[m]=[]);
-  const allRoundMessages = []; // flat list for context
+  const allRoundMessages = []; 
 
   for(let round=1; round<=state.debateRounds; round++){
-    // Round header
     const roundHeader=document.createElement('div');
     roundHeader.className='debate-round-header';
     roundHeader.innerHTML=`
@@ -751,18 +721,12 @@ async function startDebate(){
     roundMsgsDiv.className='debate-messages';
     msgsContainer.appendChild(roundMsgsDiv);
 
-    // All models speak in this round
     for(const model of eligible){
-      // Show loading bubble
       const loadingMsg=createDebateMsg(model, null, round);
       roundMsgsDiv.appendChild(loadingMsg);
       loadingMsg.scrollIntoView({behavior:'smooth',block:'end'});
 
-      // Build context of what others have said so far this debate
-      const othersContext = allRoundMessages
-        .map(m=>m)
-        .join('\n\n');
-
+      const othersContext = allRoundMessages.join('\n\n');
       const systemPrompt = DEBATE_PERSONAS[model] + (state.memory[model]?'\n'+state.memory[model]:'');
 
       let userPrompt;
@@ -777,7 +741,6 @@ async function startDebate(){
         const text=await callModel(model,userPrompt,systemPrompt);
         const ms=Date.now()-start;
 
-        // Replace loading with real message
         const realMsg=createDebateMsg(model,text,round,ms);
         roundMsgsDiv.replaceChild(realMsg,loadingMsg);
         realMsg.scrollIntoView({behavior:'smooth',block:'end'});
@@ -792,9 +755,7 @@ async function startDebate(){
     }
   }
 
-  // Verdict
   appendVerdict(msgsContainer, eligible, debateHistory, topic);
-
   setLoading(false);
   state.running=false;
 }
@@ -806,7 +767,7 @@ function createDebateMsg(model, text, round, ms){
   const timeStr=ms?`${(ms/1000).toFixed(2)}s`:'';
   const roundStr=round===1?'Opening':'Rebuttal';
   div.innerHTML=`
-    <div class="debate-msg-avatar dmsg-${m.cls}">${m.short}</div>
+    <div class="debate-msg-avatar dmsg-${m.cls}">${SVGS[model]}</div>
     <div class="debate-msg-content">
       <div class="debate-msg-header">
         <div class="debate-msg-name name-${m.cls}">${m.name}</div>
@@ -827,7 +788,7 @@ function createDebateMsgError(model, errMsg){
   const div=document.createElement('div');
   div.className='debate-msg';
   div.innerHTML=`
-    <div class="debate-msg-avatar dmsg-${m.cls}">${m.short}</div>
+    <div class="debate-msg-avatar dmsg-${m.cls}">${SVGS[model]}</div>
     <div class="debate-msg-content">
       <div class="debate-msg-header">
         <div class="debate-msg-name name-${m.cls}">${m.name}</div>
@@ -841,7 +802,6 @@ function createDebateMsgError(model, errMsg){
 }
 
 function appendVerdict(container, eligible, history, topic){
-  // Simple scoring: longer + more rounds participated = higher score (visual only)
   const scores={};
   eligible.forEach(m=>{
     const totalLen=history[m].reduce((a,t)=>a+t.length,0);
@@ -868,7 +828,6 @@ function appendVerdict(container, eligible, history, topic){
     </div>`;
   container.appendChild(verdictDiv);
 
-  // Animate bars
   setTimeout(()=>{
     verdictDiv.querySelectorAll('.vs-bar').forEach(bar=>{
       bar.style.width=bar.dataset.width;
