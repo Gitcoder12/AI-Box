@@ -126,11 +126,11 @@ header {
 .model-tile.tile-on-gemini   { border-color:var(--gemini-border);   background:var(--gemini-dim); }
 .model-tile.tile-on-deepseek { border-color:var(--deepseek-border); background:var(--deepseek-dim); }
 .tile-icon {
-  width:34px; height:34px; border-radius:8px; display:flex; align-items:center;
+  width:36px; height:36px; border-radius:8px; display:flex; align-items:center;
   justify-content:center; flex-shrink:0; background:#fff; border:1px solid var(--border);
-  transition:all 0.15s;
+  transition:all 0.15s; overflow:hidden;
 }
-.tile-icon img { width:20px; height:20px; object-fit:contain; }
+.tile-icon img { width:100%; height:100%; object-fit:cover; transform:scale(1.3); }
 .model-tile.tile-on-claude .tile-icon { box-shadow: 0 0 0 1px var(--claude-border); }
 .model-tile.tile-on-gemini .tile-icon { box-shadow: 0 0 0 1px var(--gemini-border); }
 .model-tile.tile-on-deepseek .tile-icon { box-shadow: 0 0 0 1px var(--deepseek-border); }
@@ -249,10 +249,11 @@ header {
 }
 .card-model { display:flex; align-items:center; gap:10px; }
 .card-avatar {
-  width:28px; height:28px; border-radius:6px; display:flex; align-items:center;
+  width:30px; height:30px; border-radius:6px; display:flex; align-items:center;
   justify-content:center; background:#fff; border:1px solid var(--border);
+  overflow:hidden;
 }
-.card-avatar img { width:16px; height:16px; object-fit:contain; }
+.card-avatar img { width:100%; height:100%; object-fit:cover; transform:scale(1.3); }
 .card-name { font-weight:600; font-size:0.9rem; }
 .card-version { font-family:'JetBrains Mono',monospace; font-size:0.68rem; color:var(--muted2); margin-top:2px; }
 .card-actions { display:flex; align-items:center; gap:8px; }
@@ -298,9 +299,9 @@ header {
 .debate-msg-avatar {
   width:34px; height:34px; border-radius:8px; flex-shrink:0;
   display:flex; align-items:center; justify-content:center;
-  background:#fff; border:1px solid var(--border); margin-top:2px;
+  background:#fff; border:1px solid var(--border); margin-top:2px; overflow:hidden;
 }
-.debate-msg-avatar img { width:18px; height:18px; object-fit:contain; }
+.debate-msg-avatar img { width:100%; height:100%; object-fit:cover; transform:scale(1.3); }
 
 .debate-msg-content { flex:1; min-width:0; }
 .debate-msg-header { display:flex; align-items:baseline; gap:8px; margin-bottom:6px; }
