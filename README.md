@@ -51,3 +51,17 @@ See [LICENSE](LICENSE).
 - [Company and team fit](COMPANY_FIT.md) · [README explanation draft](README_ADDENDUM_DRAFT.md)
 - [README quality checklist](README_QUALITY_CHECKLIST.md)
 - [Contributing](CONTRIBUTING.md) · [Agent instructions](AGENTS.md) · [Agent skills](SKILLS.md)
+
+## Understanding the project
+
+### In plain language
+
+A single browser page where you can send the same prompt to several AI providers and compare their answers side by side.
+
+### Technical and research view
+
+Static frontend with provider panels for Claude, Gemini and DeepSeek, user-supplied API keys, shared prompt/system instruction, parallel responses and browser-local workspace state. Because it is client-side and BYOK, keys can be exposed to browser extensions, developer tools or local storage if handled poorly; inspect storage and network paths before public use.
+
+Document provider adapters, request/response normalisation, concurrency, timeout, error handling, local state and token/cost metadata.
+
+For future work, see [FEATURE_UPGRADE_PLAN.md](FEATURE_UPGRADE_PLAN.md), [ACTIVITY_LOG.md](ACTIVITY_LOG.md), [COMPANY_FIT.md](COMPANY_FIT.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
