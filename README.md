@@ -33,3 +33,23 @@ This section supplements the maintainer-authored README above. The original text
 3. Label debate scores as length/comprehensiveness heuristics or replace them with a documented evaluation method.
 
 **Verification status:** static browser-code inspection only; live provider calls, key-handling behavior, and browser tests remain unverified.
+
+
+---
+
+## Branch Activity & Development History
+
+**Audit date:** 2026-11-18 · **Comparison base:** `main`
+
+| Branch | Difference from `main` | Observed work / changed paths |
+|---|---:|---|
+| `docs/portfolio-operating-kit-2026-11-13` | 5 ahead / 3 behind | Activity log, agent guidance, worklog, company-fit notes, feature plan and skills; README has additions and removals |
+| `docs/project-status-2026-11-16-ai-box` | 1 / 1 | Project status snapshot: `PROJECT_STATUS.md` |
+| `docs/status-inventory-2026-11-16-v1` | 1 / 1 | Project status inventory: `PROJECT_STATUS.md` |
+
+### Open pull requests observed during this audit
+
+- [PR #3 — project status snapshot](https://github.com/Gitcoder12/AI-Box/pull/3)
+- [PR #2 — project status snapshot](https://github.com/Gitcoder12/AI-Box/pull/2)
+
+**Review note:** The portfolio branch removes README content as well as adding docs. Inspect its diff before merging. No branches have been merged or deleted by this documentation update.
