@@ -33,3 +33,10 @@ This section supplements the maintainer-authored README above. The original text
 3. Label debate scores as length/comprehensiveness heuristics or replace them with a documented evaluation method.
 
 **Verification status:** static browser-code inspection only; live provider calls, key-handling behavior, and browser tests remain unverified.
+
+---
+
+## Examples Used
+- Comparing Claude, Gemini, and DeepSeek on the same question
+- Evaluating model answers for accuracy and completeness
+- Preserving separate conversation context for each model
