@@ -3,6 +3,26 @@ Compare Claude, Gemini & DeepSeek side-by-side in one tab. BYOK, memory per mode
 Live: https://gitcoder12.github.io/AI-Box/
 
 
+## Open AI Box locally (VS Code)
+
+1. Clone the repository and open it in VS Code:
+
+```bash
+git clone https://github.com/Gitcoder12/AI-Box.git
+cd AI-Box
+```
+
+2. Start a local static web server:
+
+```bash
+python -m http.server 8000
+```
+
+3. Open **http://localhost:8000** in your browser.
+4. Keep the terminal running while using the app; press **Ctrl+C** to stop the server.
+
+No npm installation or build step is required. Provider API calls need your own API keys. The current app stores keys in browser `localStorage`; use only a trusted/private browser profile and do not use a shared device. Keys are not encrypted by the app.
+
 ---
 
 ## AI-maintained project notes (secondary — 2026-11-13)
